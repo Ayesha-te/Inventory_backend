@@ -1,0 +1,8 @@
+# Core Django requirements only
+Django==4.2.7
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+django-filter==23.3
+python-decouple==3.8
+python-dotenv==1.0.0
+dj-database-url==2.1.0
