@@ -15,8 +15,8 @@ psycopg2-binary==2.9.7
 dj-database-url==2.1.0
 
 # File handling - Stable versions for Python 3.11
-Pillow==10.4.0
-pandas==2.0.3
+Pillow==11.3.0
+pandas==2.3.1
 openpyxl==3.1.2
 xlrd==2.0.1
 
