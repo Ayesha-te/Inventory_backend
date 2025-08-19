@@ -21,7 +21,6 @@ openpyxl==3.1.2
 xlrd==2.0.1
 
 # OCR and Image Processing - Skip problematic packages for now
-# opencv-python-headless==4.8.0.76  # Skip for initial deployment
 pytesseract==0.3.10
 
 # Task Queue (Django-Q)
