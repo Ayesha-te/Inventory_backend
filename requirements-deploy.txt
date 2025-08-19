@@ -18,7 +18,7 @@ Pillow==10.4.0
 
 # Task Queue
 django-q==1.3.9
-redis==5.0.1
+redis==3.5.3
 
 # Environment
 python-decouple==3.8

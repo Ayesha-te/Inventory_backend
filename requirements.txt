@@ -26,7 +26,7 @@ pytesseract==0.3.10
 
 # Task Queue (Django-Q)
 django-q==1.3.9
-redis==5.0.1
+redis==3.5.3
 
 # Email
 django-ses==3.5.0
