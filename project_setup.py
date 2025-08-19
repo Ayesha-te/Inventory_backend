@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-IMS Backend Setup Script
+IMS Backend Project Setup Script
 This script sets up the Django backend for the Inventory Management System
+Note: This is a project setup script, not a package setup file.
 """
 
 __version__ = "1.0.0"
