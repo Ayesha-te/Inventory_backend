@@ -4,6 +4,8 @@ IMS Backend Setup Script
 This script sets up the Django backend for the Inventory Management System
 """
 
+__version__ = "1.0.0"
+
 import os
 import sys
 import subprocess

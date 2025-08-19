@@ -41,9 +41,9 @@ LOCAL_APPS = [
     'accounts',
     'inventory',
     'supermarkets',
-    'pos_integration',
-    'file_processing',
-    'analytics',
+    # 'pos_integration',  # Temporarily disabled - missing dependencies
+    # 'file_processing',  # Temporarily disabled - missing dependencies  
+    # 'analytics',        # Temporarily disabled - missing views.py
     'notifications',
 ]
 
@@ -124,6 +124,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom User Model
+AUTH_USER_MODEL = 'accounts.User'
 
 # REST Framework configuration
 REST_FRAMEWORK = {

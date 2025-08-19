@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reminder: {{ reminder.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .reminder-type {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .reminder-type.expiry {
+            background-color: #dc3545;
+        }
+        .reminder-type.low-stock {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .reminder-type.custom {
+            background-color: #28a745;
+        }
+        .content {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .reminder-details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .detail-value {
+            color: #6c757d;
+        }
+        .footer {
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="reminder-type {{ reminder.reminder_type|lower }}">
+            {{ reminder.get_reminder_type_display }}
+        </div>
+        <h1>{{ reminder.title }}</h1>
+    </div>
+
+    <div class="content">
+        <p>Dear {{ user.get_full_name|default:user.email }},</p>
+        
+        <p>This is a reminder about:</p>
+        
+        <div class="reminder-details">
+            <div class="detail-row">
+                <span class="detail-label">Reminder:</span>
+                <span class="detail-value">{{ reminder.title }}</span>
+            </div>
+            
+            {% if reminder.description %}
+            <div class="detail-row">
+                <span class="detail-label">Description:</span>
+                <span class="detail-value">{{ reminder.description }}</span>
+            </div>
+            {% endif %}
+            
+            {% if reminder.target_date %}
+            <div class="detail-row">
+                <span class="detail-label">Target Date:</span>
+                <span class="detail-value">{{ reminder.target_date|date:"F d, Y \a\t g:i A" }}</span>
+            </div>
+            {% endif %}
+            
+            {% if reminder.supermarket %}
+            <div class="detail-row">
+                <span class="detail-label">Supermarket:</span>
+                <span class="detail-value">{{ reminder.supermarket.name }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="detail-row">
+                <span class="detail-label">Reminder Type:</span>
+                <span class="detail-value">{{ reminder.get_reminder_type_display }}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Created:</span>
+                <span class="detail-value">{{ reminder.created_at|date:"F d, Y \a\t g:i A" }}</span>
+            </div>
+        </div>
+
+        {% if reminder.reminder_type == 'EXPIRY' %}
+        <p><strong>Action Required:</strong> Please check your inventory and take appropriate action before the expiry date.</p>
+        {% elif reminder.reminder_type == 'LOW_STOCK' %}
+        <p><strong>Action Required:</strong> Please restock this item to avoid running out.</p>
+        {% elif reminder.reminder_type == 'REORDER' %}
+        <p><strong>Action Required:</strong> This item has reached its reorder point. Consider placing a new order.</p>
+        {% else %}
+        <p><strong>Action Required:</strong> Please review and take appropriate action.</p>
+        {% endif %}
+
+        {% if reminder.action_url %}
+        <p style="text-align: center;">
+            <a href="{{ reminder.action_url }}" class="btn">View Details</a>
+        </p>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <p>This is an automated reminder from your Inventory Management System.</p>
+        <p>If you no longer wish to receive these reminders, please update your notification preferences in your account settings.</p>
+        <p>&copy; {{ "now"|date:"Y" }} Inventory Management System. All rights reserved.</p>
+    </div>
+</body>
+</html>

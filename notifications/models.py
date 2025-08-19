@@ -244,3 +244,126 @@ class PushNotificationDevice(models.Model):
     
     def __str__(self):
         return f"{self.device_type} device for {self.user.email}"
+
+
+class Reminder(models.Model):
+    """Reminder system for various events"""
+    
+    REMINDER_TYPES = [
+        ('EXPIRY', 'Product Expiry'),
+        ('LOW_STOCK', 'Low Stock Alert'),
+        ('REORDER', 'Reorder Point'),
+        ('CUSTOM', 'Custom Reminder'),
+        ('MAINTENANCE', 'System Maintenance'),
+        ('REPORT', 'Report Generation'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('ACTIVE', 'Active'),
+        ('COMPLETED', 'Completed'),
+        ('CANCELLED', 'Cancelled'),
+        ('FAILED', 'Failed'),
+    ]
+    
+    FREQUENCY_CHOICES = [
+        ('ONCE', 'One Time'),
+        ('DAILY', 'Daily'),
+        ('WEEKLY', 'Weekly'),
+        ('MONTHLY', 'Monthly'),
+        ('YEARLY', 'Yearly'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reminders')
+    supermarket = models.ForeignKey('supermarkets.Supermarket', on_delete=models.CASCADE, related_name='reminders', blank=True, null=True)
+    
+    # Reminder details
+    reminder_type = models.CharField(max_length=20, choices=REMINDER_TYPES)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    
+    # Related object (e.g., product for expiry reminder)
+    related_object_type = models.CharField(max_length=50, blank=True, null=True)
+    related_object_id = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Scheduling
+    remind_at = models.DateTimeField()  # When to send the reminder
+    target_date = models.DateTimeField(blank=True, null=True)  # The actual event date (e.g., expiry date)
+    days_before = models.IntegerField(default=30)  # Days before target_date to remind
+    
+    # Recurrence
+    frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='ONCE')
+    is_recurring = models.BooleanField(default=False)
+    next_reminder = models.DateTimeField(blank=True, null=True)
+    
+    # Status and tracking
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
+    is_sent = models.BooleanField(default=False)
+    sent_at = models.DateTimeField(blank=True, null=True)
+    
+    # Django-Q task tracking
+    task_id = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Email settings
+    send_email = models.BooleanField(default=True)
+    email_subject = models.CharField(max_length=255, blank=True, null=True)
+    email_body = models.TextField(blank=True, null=True)
+    
+    # Metadata
+    metadata = models.JSONField(default=dict, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['reminder_type', 'remind_at']),
+            models.Index(fields=['status', 'remind_at']),
+            models.Index(fields=['task_id']),
+        ]
+    
+    def __str__(self):
+        return f"{self.title} - {self.remind_at}"
+    
+    def save(self, *args, **kwargs):
+        # Auto-calculate remind_at if target_date and days_before are provided
+        if self.target_date and self.days_before and not self.remind_at:
+            from datetime import timedelta
+            self.remind_at = self.target_date - timedelta(days=self.days_before)
+        
+        super().save(*args, **kwargs)
+
+
+class ReminderLog(models.Model):
+    """Log of reminder executions"""
+    
+    STATUS_CHOICES = [
+        ('SUCCESS', 'Success'),
+        ('FAILED', 'Failed'),
+        ('SKIPPED', 'Skipped'),
+    ]
+    
+    reminder = models.ForeignKey(Reminder, on_delete=models.CASCADE, related_name='logs')
+    
+    # Execution details
+    executed_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    
+    # Email tracking
+    email_sent = models.BooleanField(default=False)
+    email_recipient = models.EmailField(blank=True, null=True)
+    
+    # Error handling
+    error_message = models.TextField(blank=True, null=True)
+    
+    # Task info
+    task_id = models.CharField(max_length=100, blank=True, null=True)
+    execution_time = models.FloatField(blank=True, null=True)  # Execution time in seconds
+    
+    class Meta:
+        ordering = ['-executed_at']
+    
+    def __str__(self):
+        return f"{self.reminder.title} - {self.status} at {self.executed_at}"

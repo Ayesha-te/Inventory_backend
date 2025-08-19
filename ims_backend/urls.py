@@ -23,9 +23,9 @@ urlpatterns = [
     path('api/accounts/', include('accounts.urls')),
     path('api/inventory/', include('inventory.urls')),
     path('api/supermarkets/', include('supermarkets.urls')),
-    path('api/pos/', include('pos_integration.urls')),
-    path('api/files/', include('file_processing.urls')),
-    path('api/analytics/', include('analytics.urls')),
+    # path('api/pos/', include('pos_integration.urls')),      # Temporarily disabled
+    # path('api/files/', include('file_processing.urls')),    # Temporarily disabled
+    # path('api/analytics/', include('analytics.urls')),      # Temporarily disabled
     path('api/notifications/', include('notifications.urls')),
 ]
 

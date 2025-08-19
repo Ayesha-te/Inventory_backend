@@ -40,9 +40,6 @@ drf-spectacular==0.26.5
 
 # Utilities
 requests==2.31.0
-celery==5.3.4
-django-celery-beat==2.5.0
-django-celery-results==2.5.1
 
 # Monitoring and Logging
 sentry-sdk==1.38.0
