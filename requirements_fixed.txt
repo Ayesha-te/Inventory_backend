@@ -75,7 +75,6 @@ isort==5.12.0
 
 # POS Integration
 squareup==29.0.0.20231115
-shopify-python-api==12.0.0
 
 # Caching
 django-redis==5.4.0
