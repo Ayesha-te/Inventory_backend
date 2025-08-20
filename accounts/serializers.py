@@ -10,12 +10,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     
     password = serializers.CharField(write_only=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True)
+    supermarket_name = serializers.CharField(required=False, allow_blank=True, write_only=True)
     
     class Meta:
         model = User
         fields = [
-            'email', 'username', 'first_name', 'last_name', 
-            'password', 'password_confirm', 'phone', 'company_name'
+            'email', 'first_name', 'last_name', 
+            'password', 'password_confirm', 'phone', 'company_name', 'supermarket_name'
         ]
     
     def validate(self, attrs):
@@ -27,12 +28,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
         
+        # Handle supermarket_name field - map it to company_name if provided
+        supermarket_name = validated_data.pop('supermarket_name', None)
+        if supermarket_name and not validated_data.get('company_name'):
+            validated_data['company_name'] = supermarket_name
+        
         user = User.objects.create_user(**validated_data)
         user.set_password(password)
         user.save()
         
-        # Create user profile
-        UserProfile.objects.create(user=user)
+        # UserProfile is automatically created by signal, no need to create manually
         
         return user
 
@@ -69,7 +74,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'email', 'username', 'first_name', 'last_name',
+            'id', 'email', 'first_name', 'last_name',
             'phone', 'company_name', 'address', 'profile_picture',
             'subscription_plan', 'subscription_start_date', 'subscription_end_date',
             'is_subscription_active', 'subscription_days_remaining', 'is_subscription_expired',
@@ -91,7 +96,7 @@ class UserProfileDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'email', 'username', 'first_name', 'last_name',
+            'id', 'email', 'first_name', 'last_name',
             'phone', 'company_name', 'address', 'profile_picture',
             'subscription_plan', 'subscription_start_date', 'subscription_end_date',
             'is_subscription_active', 'timezone', 'language', 'email_notifications',

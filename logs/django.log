@@ -23,3 +23,382 @@ Error creating expiry reminder for Test Yogurt: Tried to update field notificati
 Scheduled reminder task reminder_a728d399-9b77-4687-9392-d760dc996e55 for 2025-08-19 15:44:40.689428+00:00
 Created reminder a728d399-9b77-4687-9392-d760dc996e55 for user 1
 Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\serializers.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\serializers.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\serializers.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\serializers.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Internal Server Error: /api/accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 89, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 328, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: accounts_userprofile.user_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\views.py", line 30, in post
+    user = serializer.save()
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 208, in save
+    self.instance = self.create(validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\serializers.py", line 41, in create
+    UserProfile.objects.create(user=user)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 658, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 814, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 877, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1020, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1061, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1805, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1822, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 67, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 80, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 84, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 89, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 328, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: accounts_userprofile.user_id
+Internal Server Error: /api/accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 89, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 328, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: accounts_userprofile.user_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\views.py", line 30, in post
+    user = serializer.save()
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 208, in save
+    self.instance = self.create(validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\serializers.py", line 41, in create
+    UserProfile.objects.create(user=user)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 658, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 814, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 877, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1020, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1061, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1805, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1822, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 67, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 80, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 84, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 89, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 328, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: accounts_userprofile.user_id
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\ims_backend\settings.py changed, reloading.
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\ims_backend\settings.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\ims_backend\settings.py changed, reloading.
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\ims_backend\settings.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Internal Server Error: /api/accounts/register/
+Traceback (most recent call last):
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 89, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 328, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: accounts_userprofile.user_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\views.py", line 30, in post
+    user = serializer.save()
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 208, in save
+    self.instance = self.create(validated_data)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\serializers.py", line 41, in create
+    UserProfile.objects.create(user=user)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 658, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 814, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 877, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1020, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\base.py", line 1061, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 1805, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\sql\compiler.py", line 1822, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 67, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 80, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 84, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\utils.py", line 89, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\backends\sqlite3\base.py", line 328, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: accounts_userprofile.user_id
+Watching for file changes with StatReloader
+C:\Users\Ayesha Jahangir\Downloads\IMS\backend\accounts\serializers.py changed, reloading.
+Watching for file changes with StatReloader
+Bad Request: /api/accounts/register/
+Internal Server Error: /api/auth/token/refresh/
+Traceback (most recent call last):
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework_simplejwt\views.py", line 44, in post
+    serializer.is_valid(raise_exception=True)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 223, in is_valid
+    self._validated_data = self.run_validation(self.initial_data)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework\serializers.py", line 445, in run_validation
+    value = self.validate(value)
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework_simplejwt\serializers.py", line 141, in validate
+    refresh.outstand()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Ayesha Jahangir\AppData\Local\Programs\Python\Python313\Lib\site-packages\rest_framework_simplejwt\tokens.py", line 222, in outstand
+    return OutstandingToken.objects.get_or_create(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'OutstandingToken' has no attribute 'objects'
