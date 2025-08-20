@@ -22,3 +22,4 @@ Error creating reminder: Tried to update field notifications.Reminder.task_id wi
 Error creating expiry reminder for Test Yogurt: Tried to update field notifications.Reminder.task_id with a model instance, <Schedule: notifications.services.execute_reminder>. Use a value compatible with CharField.
 Scheduled reminder task reminder_a728d399-9b77-4687-9392-d760dc996e55 for 2025-08-19 15:44:40.689428+00:00
 Created reminder a728d399-9b77-4687-9392-d760dc996e55 for user 1
+Watching for file changes with StatReloader

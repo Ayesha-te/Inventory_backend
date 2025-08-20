@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Sum, Avg, Count
 from django.utils import timezone
+from django.http import HttpResponse
 from datetime import timedelta
 from decimal import Decimal
 
@@ -19,6 +20,7 @@ from .serializers import (
     BulkProductUpdateSerializer, ProductStatsSerializer, ProductImageSerializer
 )
 from .filters import ProductFilter
+from .services import BarcodeService, TicketService, ProductService
 
 
 class CategoryListCreateView(generics.ListCreateAPIView):
@@ -435,4 +437,239 @@ def search_products_by_barcode(request, barcode):
         return Response(
             {'error': 'Product not found'},
             status=status.HTTP_404_NOT_FOUND
+        )
+
+
+class BarcodeGenerationView(APIView):
+    """Generate barcode for a product"""
+    
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, product_id):
+        """Get barcode image for a product"""
+        try:
+            product = Product.objects.get(
+                id=product_id,
+                supermarket__owner=request.user
+            )
+            
+            # Generate barcode if not exists
+            if not product.barcode:
+                product.barcode = BarcodeService.generate_barcode_number(str(product.id))
+                product.save()
+            
+            barcode_type = request.GET.get('type', 'CODE128')
+            format_type = request.GET.get('format', 'PNG')
+            
+            # Generate barcode image
+            barcode_image = BarcodeService.generate_barcode_image(
+                product.barcode, 
+                barcode_type, 
+                format_type
+            )
+            
+            response = HttpResponse(barcode_image, content_type=f'image/{format_type.lower()}')
+            response['Content-Disposition'] = f'attachment; filename="{product.name}_barcode.{format_type.lower()}"'
+            return response
+            
+        except Product.DoesNotExist:
+            return Response(
+                {'error': 'Product not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': f'Error generating barcode: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def post(self, request, product_id):
+        """Generate and save barcode for a product"""
+        try:
+            product = Product.objects.get(
+                id=product_id,
+                supermarket__owner=request.user
+            )
+            
+            barcode_type = request.data.get('barcode_type', 'CODE128')
+            
+            # Create barcode record
+            barcode_obj = BarcodeService.create_product_barcode(product, barcode_type)
+            
+            serializer = BarcodeSerializer(barcode_obj)
+            return Response(serializer.data)
+            
+        except Product.DoesNotExist:
+            return Response(
+                {'error': 'Product not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': f'Error creating barcode: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class ProductTicketView(APIView):
+    """Generate product ticket/label"""
+    
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, product_id):
+        """Generate single product ticket as PDF"""
+        try:
+            product = Product.objects.get(
+                id=product_id,
+                supermarket__owner=request.user
+            )
+            
+            include_qr = request.GET.get('include_qr', 'true').lower() == 'true'
+            
+            # Generate ticket PDF
+            ticket_pdf = TicketService.generate_product_ticket(product, include_qr)
+            
+            response = HttpResponse(ticket_pdf, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{product.name}_ticket.pdf"'
+            return response
+            
+        except Product.DoesNotExist:
+            return Response(
+                {'error': 'Product not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': f'Error generating ticket: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class BulkTicketsView(APIView):
+    """Generate bulk tickets for multiple products"""
+    
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        """Generate tickets for multiple products"""
+        try:
+            product_ids = request.data.get('product_ids', [])
+            tickets_per_page = request.data.get('tickets_per_page', 8)
+            
+            if not product_ids:
+                return Response(
+                    {'error': 'No product IDs provided'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Get products
+            products = Product.objects.filter(
+                id__in=product_ids,
+                supermarket__owner=request.user,
+                is_active=True
+            )
+            
+            if not products.exists():
+                return Response(
+                    {'error': 'No products found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Generate bulk tickets PDF
+            tickets_pdf = TicketService.generate_bulk_tickets(
+                list(products), 
+                tickets_per_page
+            )
+            
+            response = HttpResponse(tickets_pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="product_tickets.pdf"'
+            return response
+            
+        except Exception as e:
+            return Response(
+                {'error': f'Error generating tickets: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class BulkBarcodesView(APIView):
+    """Generate bulk barcodes sheet"""
+    
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        """Generate barcode sheet for multiple products"""
+        try:
+            product_ids = request.data.get('product_ids', [])
+            barcodes_per_page = request.data.get('barcodes_per_page', 20)
+            
+            if not product_ids:
+                # If no specific products, get all products for the user
+                products = Product.objects.filter(
+                    supermarket__owner=request.user,
+                    is_active=True
+                )
+            else:
+                products = Product.objects.filter(
+                    id__in=product_ids,
+                    supermarket__owner=request.user,
+                    is_active=True
+                )
+            
+            if not products.exists():
+                return Response(
+                    {'error': 'No products found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Generate barcode sheet PDF
+            barcode_pdf = TicketService.generate_barcode_sheet(
+                list(products), 
+                barcodes_per_page
+            )
+            
+            response = HttpResponse(barcode_pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="product_barcodes.pdf"'
+            return response
+            
+        except Exception as e:
+            return Response(
+                {'error': f'Error generating barcode sheet: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def generate_barcode_for_product(request, product_id):
+    """Generate a new barcode for an existing product"""
+    try:
+        product = Product.objects.get(
+            id=product_id,
+            supermarket__owner=request.user
+        )
+        
+        # Generate new barcode
+        new_barcode = BarcodeService.generate_barcode_number(str(product.id))
+        product.barcode = new_barcode
+        product.save()
+        
+        # Create barcode record
+        barcode_obj = BarcodeService.create_product_barcode(product)
+        
+        return Response({
+            'message': 'Barcode generated successfully',
+            'barcode': new_barcode,
+            'product': ProductListSerializer(product).data
+        })
+        
+    except Product.DoesNotExist:
+        return Response(
+            {'error': 'Product not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {'error': f'Error generating barcode: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

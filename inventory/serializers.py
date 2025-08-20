@@ -3,6 +3,7 @@ from .models import (
     Category, Supplier, Product, ProductImage, StockMovement, 
     ProductAlert, Barcode, ProductReview
 )
+from .services import BarcodeService
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -163,6 +164,24 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Minimum stock level cannot be greater than maximum stock level.")
         
         return attrs
+    
+    def create(self, validated_data):
+        """Create product with automatic barcode generation"""
+        # Generate barcode if not provided
+        if not validated_data.get('barcode'):
+            validated_data['barcode'] = BarcodeService.generate_barcode_number()
+        
+        # Set created_by if available in context
+        if 'request' in self.context:
+            validated_data['created_by'] = self.context['request'].user
+        
+        # Create product
+        product = super().create(validated_data)
+        
+        # Create barcode record
+        BarcodeService.create_product_barcode(product)
+        
+        return product
 
 
 class StockMovementSerializer(serializers.ModelSerializer):

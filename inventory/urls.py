@@ -28,4 +28,11 @@ urlpatterns = [
     
     # Reviews
     path('reviews/', views.ProductReviewListCreateView.as_view(), name='product_review_list_create'),
+    
+    # Barcode and Ticket Generation
+    path('products/<uuid:product_id>/barcode/', views.BarcodeGenerationView.as_view(), name='product_barcode'),
+    path('products/<uuid:product_id>/ticket/', views.ProductTicketView.as_view(), name='product_ticket'),
+    path('products/<uuid:product_id>/generate-barcode/', views.generate_barcode_for_product, name='generate_barcode'),
+    path('products/bulk-tickets/', views.BulkTicketsView.as_view(), name='bulk_tickets'),
+    path('products/bulk-barcodes/', views.BulkBarcodesView.as_view(), name='bulk_barcodes'),
 ]
