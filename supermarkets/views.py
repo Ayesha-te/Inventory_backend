@@ -23,6 +23,7 @@ class SupermarketListCreateView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['is_active', 'is_sub_store', 'pos_system_type']
     ordering = ['-registration_date']
+    pagination_class = None  # Disable pagination for supermarkets - return plain array
     
     def get_queryset(self):
         return Supermarket.objects.filter(owner=self.request.user)

@@ -33,6 +33,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     search_fields = ['name', 'description']
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
+    pagination_class = None  # Disable pagination for categories - return plain array
 
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -53,6 +54,7 @@ class SupplierListCreateView(generics.ListCreateAPIView):
     search_fields = ['name', 'contact_person', 'email']
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
+    pagination_class = None  # Disable pagination for suppliers - return plain array
 
 
 class SupplierDetailView(generics.RetrieveUpdateDestroyAPIView):
