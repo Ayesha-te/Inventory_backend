@@ -142,9 +142,15 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
             'halal_certified', 'halal_status', 'halal_certification_body',
             'image_url', 'image', 'supermarket'
         ]
+        extra_kwargs = {
+            'barcode': {'required': False},  # Allow omitting barcode; it will be auto-generated
+        }
     
     def validate_barcode(self, value):
         """Validate barcode uniqueness"""
+        # If value is omitted or blank, let create() generate it
+        if not value:
+            return value
         if self.instance:
             # Update case - exclude current instance
             if Product.objects.exclude(id=self.instance.id).filter(barcode=value).exists():
