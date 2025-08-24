@@ -70,6 +70,9 @@ class ProductListSerializer(serializers.ModelSerializer):
     
     category_name = serializers.CharField(source='category.name', read_only=True)
     supplier_name = serializers.CharField(source='supplier.name', read_only=True)
+    supermarket_name = serializers.CharField(source='supermarket.name', read_only=True)
+    supermarket_parent = serializers.UUIDField(source='supermarket.parent.id', read_only=True, allow_null=True)
+    supermarket_parent_name = serializers.CharField(source='supermarket.parent.name', read_only=True)
     is_low_stock = serializers.ReadOnlyField()
     is_expired = serializers.ReadOnlyField()
     is_expiring_soon = serializers.ReadOnlyField()
@@ -83,7 +86,9 @@ class ProductListSerializer(serializers.ModelSerializer):
             'quantity', 'min_stock_level', 'price', 'selling_price',
             'expiry_date', 'location', 'is_low_stock', 'is_expired',
             'is_expiring_soon', 'days_until_expiry', 'total_value',
-            'image', 'is_active', 'added_date'
+            'image', 'is_active', 'added_date',
+            # Added supermarket information to support filtering on frontend
+            'supermarket', 'supermarket_name', 'supermarket_parent', 'supermarket_parent_name'
         ]
 
 

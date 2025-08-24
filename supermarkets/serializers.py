@@ -15,12 +15,13 @@ class SupermarketListSerializer(serializers.ModelSerializer):
     total_inventory_value = serializers.ReadOnlyField()
     low_stock_products_count = serializers.ReadOnlyField()
     owner_name = serializers.CharField(source='owner.get_full_name', read_only=True)
+    parent_name = serializers.CharField(source='parent.name', read_only=True)
     
     class Meta:
         model = Supermarket
         fields = [
             'id', 'name', 'address', 'phone', 'email', 'logo',
-            'is_verified', 'is_sub_store', 'pos_system_type',
+            'is_verified', 'is_sub_store', 'parent', 'parent_name', 'pos_system_type',
             'pos_system_enabled', 'registration_date', 'is_active',
             'total_products', 'total_inventory_value', 'low_stock_products_count',
             'owner_name'
