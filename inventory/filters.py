@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from datetime import timedelta
 from .models import Product, Category, Supplier
+from supermarkets.models import Supermarket
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -14,6 +15,7 @@ class ProductFilter(django_filters.FilterSet):
     brand = django_filters.CharFilter(lookup_expr='icontains')
     category = django_filters.ModelChoiceFilter(queryset=Category.objects.all())
     supplier = django_filters.ModelChoiceFilter(queryset=Supplier.objects.all())
+    supermarket = django_filters.ModelChoiceFilter(queryset=Supermarket.objects.all())
     
     # Price filters
     price_min = django_filters.NumberFilter(field_name='price', lookup_expr='gte')
@@ -50,7 +52,7 @@ class ProductFilter(django_filters.FilterSet):
     class Meta:
         model = Product
         fields = [
-            'name', 'barcode', 'brand', 'category', 'supplier',
+            'name', 'barcode', 'brand', 'category', 'supplier', 'supermarket',
             'price_min', 'price_max', 'cost_price_min', 'cost_price_max',
             'selling_price_min', 'selling_price_max', 'quantity_min', 'quantity_max',
             'expiry_date_from', 'expiry_date_to', 'added_date_from', 'added_date_to',
