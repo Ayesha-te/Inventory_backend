@@ -5,18 +5,23 @@ from django.core.exceptions import ValidationError
 from .models import User, UserProfile, UserSession
 
 
+from supermarkets.models import Supermarket, SupermarketSettings
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    """Serializer for user registration"""
+    """Serializer for user registration with optional supermarket auto-creation"""
     
     password = serializers.CharField(write_only=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True)
     supermarket_name = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    supermarket_address = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    supermarket_phone = serializers.CharField(required=False, allow_blank=True, write_only=True)
     
     class Meta:
         model = User
         fields = [
             'email', 'first_name', 'last_name', 
-            'password', 'password_confirm', 'phone', 'company_name', 'supermarket_name'
+            'password', 'password_confirm', 'phone', 'company_name',
+            'supermarket_name', 'supermarket_address', 'supermarket_phone'
         ]
     
     def validate(self, attrs):
@@ -28,14 +33,44 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         validated_data.pop('password_confirm')
         password = validated_data.pop('password')
         
-        # Handle supermarket_name field - map it to company_name if provided
-        supermarket_name = validated_data.pop('supermarket_name', None)
+        # Extract supermarket fields (optional)
+        supermarket_name = validated_data.pop('supermarket_name', '').strip()
+        supermarket_address = validated_data.pop('supermarket_address', '').strip()
+        supermarket_phone = validated_data.pop('supermarket_phone', '').strip()
+        
+        # Map supermarket_name to company_name if company_name not provided
         if supermarket_name and not validated_data.get('company_name'):
             validated_data['company_name'] = supermarket_name
         
+        # Create user
         user = User.objects.create_user(**validated_data)
         user.set_password(password)
         user.save()
+        
+        # Auto-create a primary supermarket for this user
+        try:
+            name = supermarket_name or validated_data.get('company_name') or (
+                f"{(user.first_name or user.email.split('@')[0]).strip()}'s Supermarket"
+            )
+            address = supermarket_address or 'Not provided'
+            # Must satisfy regex '^[+]?1?\d{9,15}$'
+            phone = supermarket_phone or '+10000000000'
+            Supermarket_obj = Supermarket.objects.create(
+                owner=user,
+                name=name,
+                address=address,
+                phone=phone,
+                email=user.email,
+                description='Automatically created on user registration',
+            )
+            # Create default settings (optional)
+            try:
+                SupermarketSettings.objects.create(supermarket=Supermarket_obj)
+            except Exception:
+                pass
+        except Exception:
+            # Do not fail user registration if supermarket creation fails
+            pass
         
         # UserProfile is automatically created by signal, no need to create manually
         

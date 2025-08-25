@@ -17,6 +17,7 @@ from .serializers import (
     UserProfileDetailSerializer, ChangePasswordSerializer, UserSessionSerializer,
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer
 )
+from supermarkets.models import Supermarket
 
 
 class UserRegistrationView(APIView):
