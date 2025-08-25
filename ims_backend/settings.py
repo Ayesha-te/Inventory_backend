@@ -172,13 +172,18 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=60),
 }
 
-# CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+# CORS settings - Allow all origins during development
+CORS_ALLOW_ALL_ORIGINS = True  # ⚠️ Only for development!
+
+# For production, use specific origins:
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+#     "http://localhost:5180",
+#     "http://127.0.0.1:5180",
+# ]
 
 CORS_ALLOW_CREDENTIALS = True
 
