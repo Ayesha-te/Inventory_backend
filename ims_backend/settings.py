@@ -45,6 +45,7 @@ LOCAL_APPS = [
     # 'file_processing',  # Temporarily disabled - missing dependencies  
     # 'analytics',        # Temporarily disabled - missing views.py
     'notifications',
+    'purchasing',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
