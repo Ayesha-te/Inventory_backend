@@ -25,6 +25,8 @@ DATABASES = {
 # Static files configuration
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Do not use STATICFILES_DIRS in production to avoid warnings about missing '/static'
+STATICFILES_DIRS = []
 
 # Media files configuration
 MEDIA_URL = '/media/'
@@ -40,9 +42,15 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
 # CORS settings
+# Prefer explicit allowed origins in production. If not provided, default to allow-all to avoid invalid blank entries.
 CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=True, cast=bool)
 _raw_cors = config('CORS_ALLOWED_ORIGINS', default='')
-CORS_ALLOWED_ORIGINS = [o.strip() for o in _raw_cors.split(',') if o.strip()] if not CORS_ALLOW_ALL_ORIGINS else []
+if CORS_ALLOW_ALL_ORIGINS:
+    CORS_ALLOWED_ORIGINS = []
+else:
+    # Build a clean list: split by comma, strip whitespace, drop empties, and require scheme
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in _raw_cors.split(',') if o and o.strip()]
+    CORS_ALLOWED_ORIGINS = [o for o in CORS_ALLOWED_ORIGINS if '://' in o]
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

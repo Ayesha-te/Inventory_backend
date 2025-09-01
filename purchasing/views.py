@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Min, F
 from .models import SupplierProduct, PurchaseOrder
 from .serializers import SupplierProductSerializer, PurchaseOrderSerializer
@@ -10,7 +10,8 @@ from .serializers import SupplierProductSerializer, PurchaseOrderSerializer
 class SupplierProductViewSet(viewsets.ModelViewSet):
     queryset = SupplierProduct.objects.select_related('supplier', 'product').all()
     serializer_class = SupplierProductSerializer
-    permission_classes = [IsAuthenticated]
+    # Make public as requested
+    permission_classes = [AllowAny]
     filterset_fields = ['supplier', 'product', 'is_active']
     search_fields = ['supplier__name', 'product__name']
     ordering_fields = ['supplier_price', 'available_quantity']
@@ -19,7 +20,8 @@ class SupplierProductViewSet(viewsets.ModelViewSet):
 class PurchaseOrderViewSet(viewsets.ModelViewSet):
     queryset = PurchaseOrder.objects.select_related('supplier', 'supermarket', 'created_by').prefetch_related('items').all()
     serializer_class = PurchaseOrderSerializer
-    permission_classes = [IsAuthenticated]
+    # Make public as requested
+    permission_classes = [AllowAny]
     filterset_fields = ['supplier', 'supermarket', 'status']
     search_fields = ['supplier__name', 'notes']
     ordering_fields = ['created_at', 'updated_at']
@@ -57,7 +59,8 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
 
 from rest_framework.views import APIView
 class BestSupplierView(APIView):
-    permission_classes = [IsAuthenticated]
+    # Make public as requested
+    permission_classes = [AllowAny]
 
     def get(self, request):
         product_id = request.query_params.get('product')
