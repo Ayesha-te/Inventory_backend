@@ -115,9 +115,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+# Include app-level static during dev if the directory exists
+DEV_STATIC_DIR = BASE_DIR / 'static'
+STATICFILES_DIRS = [DEV_STATIC_DIR] if DEV_STATIC_DIR.exists() else []
 
 # Media files
 MEDIA_URL = '/media/'
@@ -249,16 +249,25 @@ LOGGING = {
 # Create logs directory
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
-# Cache configuration
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+# Cache configuration: prefer REDIS_URL if provided, otherwise use LocMem in dev
+REDIS_URL = config('REDIS_URL', default='')
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'ims-dev-locmem',
+        }
+    }
 
-# Session configuration
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# Session configuration - use cached DB sessions (works with both Redis and LocMem)
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
 

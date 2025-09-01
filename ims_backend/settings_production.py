@@ -41,7 +41,8 @@ if not DEBUG:
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=True, cast=bool)
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+_raw_cors = config('CORS_ALLOWED_ORIGINS', default='')
+CORS_ALLOWED_ORIGINS = [o.strip() for o in _raw_cors.split(',') if o.strip()] if not CORS_ALLOW_ALL_ORIGINS else []
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -53,7 +54,28 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@ims.com')
 
 # Redis configuration
-REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/0')
+REDIS_URL = config('REDIS_URL', default='')
+
+# Cache configuration: use Redis if provided, otherwise fall back to in-memory cache
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'ims-production-locmem',
+        }
+    }
+
+# Session configuration - use cached DB sessions (works with both Redis and LocMem)
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_CACHE_ALIAS = 'default'
+SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
 
 # Django-Q configuration for production
 Q_CLUSTER = {
@@ -66,7 +88,7 @@ Q_CLUSTER = {
     'queue_limit': 500,
     'cpu_affinity': 1,
     'label': 'Django Q',
-    'redis': REDIS_URL
+    'redis': REDIS_URL or 'redis://127.0.0.1:6379/0'
 }
 
 # Logging configuration
