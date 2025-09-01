@@ -44,6 +44,7 @@ class Supplier(models.Model):
     website = models.URLField(blank=True, null=True)
     tax_id = models.CharField(max_length=50, blank=True, null=True)
     payment_terms = models.CharField(max_length=100, blank=True, null=True)
+    credit_days = models.IntegerField(default=0)  # New field for supplier credit limit in days
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
