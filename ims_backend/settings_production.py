@@ -115,11 +115,13 @@ LOGGING = {
 }
 
 # Disable problematic apps for production deployment
+# Ensure 'purchasing' is enabled in production so /api/purchasing/* endpoints work
 LOCAL_APPS = [
     'accounts',
     'inventory',
     'supermarkets',
     'notifications',
+    'purchasing',  # enable purchasing app in production
     # Temporarily disable apps with heavy dependencies
     # 'pos_integration',
     # 'file_processing',
