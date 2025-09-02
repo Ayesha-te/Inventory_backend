@@ -1,8 +1,8 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.db.models import Min, F
+from rest_framework.permissions import AllowAny
+from django.db.models import Min
 from .models import SupplierProduct, PurchaseOrder
 from .serializers import SupplierProductSerializer, PurchaseOrderSerializer
 
@@ -10,7 +10,6 @@ from .serializers import SupplierProductSerializer, PurchaseOrderSerializer
 class SupplierProductViewSet(viewsets.ModelViewSet):
     queryset = SupplierProduct.objects.select_related('supplier', 'product').all()
     serializer_class = SupplierProductSerializer
-    # Make public as requested
     permission_classes = [AllowAny]
     filterset_fields = ['supplier', 'product', 'is_active']
     search_fields = ['supplier__name', 'product__name']
@@ -20,46 +19,66 @@ class SupplierProductViewSet(viewsets.ModelViewSet):
 class PurchaseOrderViewSet(viewsets.ModelViewSet):
     queryset = PurchaseOrder.objects.select_related('supplier', 'supermarket', 'created_by').prefetch_related('items').all()
     serializer_class = PurchaseOrderSerializer
-    # Make public as requested
     permission_classes = [AllowAny]
     filterset_fields = ['supplier', 'supermarket', 'status']
-    search_fields = ['supplier__name', 'notes']
-    ordering_fields = ['created_at', 'updated_at']
+    search_fields = ['supplier__name', 'notes', 'po_number']
+    ordering_fields = ['created_at', 'updated_at', 'expected_delivery_date']
 
     @action(detail=True, methods=['post'])
     def receive(self, request, pk=None):
         po = self.get_object()
         if po.status == 'RECEIVED':
             return Response({'detail': 'Already received'}, status=status.HTTP_400_BAD_REQUEST)
-        # Mark received — stock update could be added here
         po.status = 'RECEIVED'
         po.save(update_fields=['status'])
         return Response({'detail': 'Marked as received'})
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
-        total = self.get_queryset().count()
-        received = self.get_queryset().filter(status='RECEIVED').count()
-        draft = self.get_queryset().filter(status='DRAFT').count()
-        sent = self.get_queryset().filter(status='SENT').count()
-        return Response({ 'total': total, 'received': received, 'draft': draft, 'sent': sent })
+        qs = self.get_queryset()
+        return Response({
+            'total': qs.count(),
+            'received': qs.filter(status='RECEIVED').count(),
+            'draft': qs.filter(status='DRAFT').count(),
+            'sent': qs.filter(status='SENT').count(),
+        })
 
-    @action(detail=True, methods=['get'])
-    def pdf(self, request, pk=None):
-        # Stub: return JSON; replace with real PDF generation when needed
-        po = self.get_object()
-        return Response({'detail': f'PDF generation placeholder for PO {po.id}'})
-
-    @action(detail=True, methods=['post'])
-    def email(self, request, pk=None):
-        # Stub: send email; integrate with notifications/email later
-        po = self.get_object()
-        return Response({'detail': f'Email sent placeholder for PO {po.id}'})
+    @action(detail=False, methods=['get'])
+    def info(self, request):
+        """Informational endpoint describing what a PO is and typical fields."""
+        return Response({
+            'title': 'Purchase Order (PO)',
+            'description': 'A formal document that a buyer sends to a supplier/vendor to request goods or services.',
+            'fields': [
+                'PO Number (unique ID to track it)',
+                'Supplier name (who you’re buying from)',
+                'Buyer name (your business)',
+                'Products/Services list (with quantities and unit prices)',
+                'Total amount',
+                'Expected delivery date',
+                'Payment terms (e.g., 30 days after delivery)'
+            ],
+            'example': {
+                'PO Number': 'PO-2025-01',
+                'Supplier': 'Tech Supplier Ltd',
+                'Product': 'Dell Laptop',
+                'Quantity': 10,
+                'Unit Price': '$800',
+                'Total': '$8,000',
+                'Expected Date': '10-Sep-2025'
+            },
+            'why_important': [
+                'Keeps track of what you ordered.',
+                'Helps avoid duplicate or unauthorized purchases.',
+                'Acts as a legal contract between buyer & supplier.',
+                'Links with inventory (once received, stock is updated).',
+                'Links with accounts (payment due against a PO).'
+            ]
+        })
 
 
 from rest_framework.views import APIView
 class BestSupplierView(APIView):
-    # Make public as requested
     permission_classes = [AllowAny]
 
     def get(self, request):
