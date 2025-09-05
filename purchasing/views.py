@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.db.models import Min
+from django.db import DatabaseError, IntegrityError
 from .models import SupplierProduct, PurchaseOrder
 from .serializers import SupplierProductSerializer, PurchaseOrderSerializer
 
@@ -23,6 +24,19 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
     filterset_fields = ['supplier', 'supermarket', 'status']
     search_fields = ['supplier__name', 'notes', 'po_number']
     ordering_fields = ['created_at', 'updated_at', 'expected_delivery_date']
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except (DatabaseError, IntegrityError) as e:
+            # Return JSON error instead of HTML debug page
+            return Response(
+                {
+                    'detail': 'Database error while creating Purchase Order',
+                    'error': str(e),
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     @action(detail=True, methods=['post'])
     def receive(self, request, pk=None):
