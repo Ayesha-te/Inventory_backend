@@ -6,6 +6,7 @@ from inventory.services import ProductService
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
+import uuid
 
 
 class SupplierProductSerializer(serializers.ModelSerializer):
@@ -59,7 +60,7 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at', 'updated_at', 'created_by', 'status']
 
-    def _resolve_supermarket(self, data: dict):
+    def _resolve_supermarket(self, data: dict, request=None):
         # Use provided supermarket id if present
         sm = data.get('supermarket')
         if sm:
@@ -68,8 +69,30 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         name = (data.pop('supermarket_text', '') or '').strip()
         if not name:
             return None
+        # Try existing by name for this owner first
+        qs = Supermarket.objects.filter(name__iexact=name)
+        if request and request.user and request.user.is_authenticated:
+            qs = qs.filter(owner=request.user)
+        existing = qs.first()
+        if existing:
+            return existing
+        # Auto-create minimal supermarket with sane defaults using current user as owner
+        if not request or not request.user or not request.user.is_authenticated:
+            # Cannot auto-create without an owner
+            return None
+        minimal = {
+            'name': name,
+            'description': '',
+            'address': 'Unknown',
+            'phone': '+10000000000',
+            'email': f'auto-{uuid.uuid4().hex[:8]}@example.com',
+            'owner': request.user,
+            'is_sub_store': False,
+            'is_verified': False,
+        }
         try:
-            return Supermarket.objects.filter(name__iexact=name).first()
+            sm = Supermarket.objects.create(**minimal)
+            return sm
         except Exception:
             return None
 

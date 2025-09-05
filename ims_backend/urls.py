@@ -27,6 +27,7 @@ urlpatterns = [
     # path('api/files/', include('file_processing.urls')),    # Temporarily disabled
     # path('api/analytics/', include('analytics.urls')),      # Temporarily disabled
     path('api/notifications/', include('notifications.urls')),
+    path('api/orders/', include('orders.urls')),
 ]
 
 # Purchasing URLs
