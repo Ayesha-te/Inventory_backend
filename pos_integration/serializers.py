@@ -14,7 +14,7 @@ class POSSystemSerializer(serializers.ModelSerializer):
 
 
 class POSIntegrationSerializer(serializers.ModelSerializer):
-    """Serializer for POS integrations"""
+    """Serializer for integrations (POS, Channels, Couriers)"""
     
     supermarket_name = serializers.CharField(source='supermarket.name', read_only=True)
     pos_system_name = serializers.CharField(source='pos_system.name', read_only=True)
@@ -22,13 +22,16 @@ class POSIntegrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = POSIntegration
         fields = [
-            'id', 'supermarket', 'supermarket_name', 'pos_system', 'pos_system_name',
-            'api_key', 'api_secret', 'store_id', 'auto_sync_enabled', 'sync_interval',
-            'sync_products', 'sync_inventory', 'sync_prices', 'status', 'last_sync',
-            'last_error', 'created_at', 'updated_at'
+            'id', 'supermarket', 'supermarket_name', 'pos_system', 'pos_system_name', 'kind',
+            'api_key', 'api_secret', 'store_id',
+            'oauth_client_id', 'oauth_client_secret', 'refresh_token', 'region', 'sandbox',
+            'auto_sync_enabled', 'sync_interval', 'sync_orders', 'sync_products', 'sync_inventory', 'sync_prices',
+            'status', 'last_sync', 'last_error', 'created_at', 'updated_at'
         ]
         extra_kwargs = {
-            'api_secret': {'write_only': True}
+            'api_secret': {'write_only': True},
+            'oauth_client_secret': {'write_only': True},
+            'refresh_token': {'write_only': True},
         }
     
     def validate_supermarket(self, value):

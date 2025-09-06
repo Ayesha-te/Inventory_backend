@@ -11,9 +11,9 @@ urlpatterns = [
     path('systems/', views.POSSystemListView.as_view(), name='pos_system_list'),
     
     # Sync operations
-    path('integrations/<int:integration_id>/sync/', views.trigger_sync, name='trigger_pos_sync'),
-    path('integrations/<int:integration_id>/test/', views.test_connection, name='test_pos_connection'),
+    path('integrations/<int:integration_id>/sync/', views.trigger_sync, name='trigger_sync'),
+    path('integrations/<int:integration_id>/test/', views.test_connection, name='test_connection'),
     
     # Sync logs
-    path('integrations/<int:integration_id>/logs/', views.POSSyncLogListView.as_view(), name='pos_sync_log_list'),
+    path('integrations/<int:integration_id>/logs/', views.POSSyncLogListView.as_view(), name='sync_log_list'),
 ]

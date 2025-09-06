@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.apps import apps
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -23,7 +24,7 @@ urlpatterns = [
     path('api/accounts/', include('accounts.urls')),
     path('api/inventory/', include('inventory.urls')),
     path('api/supermarkets/', include('supermarkets.urls')),
-    # path('api/pos/', include('pos_integration.urls')),      # Temporarily disabled
+    # 'pos_integration' URLs are added conditionally below
     # path('api/files/', include('file_processing.urls')),    # Temporarily disabled
     # path('api/analytics/', include('analytics.urls')),      # Temporarily disabled
     path('api/notifications/', include('notifications.urls')),
@@ -32,6 +33,10 @@ urlpatterns = [
 
 # Purchasing URLs
 urlpatterns.append(path('api/purchasing/', include('purchasing.urls')))
+
+# Conditionally include POS integration URLs only if the app is installed
+if apps.is_installed('pos_integration'):
+    urlpatterns.append(path('api/pos/', include('pos_integration.urls')))
 
 # Serve media files in development
 if settings.DEBUG:

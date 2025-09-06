@@ -40,7 +40,7 @@ class POSIntegrationDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class POSIntegrationCreateView(generics.CreateAPIView):
-    """Create POS integration"""
+    """Create integration (POS/Channel/Courier)"""
     
     serializer_class = POSIntegrationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -66,7 +66,7 @@ class POSSyncLogListView(generics.ListAPIView):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def trigger_sync(request, integration_id):
-    """Trigger POS sync"""
+    """Trigger sync (orders/products/inventory/labels depending on integration kind)"""
     try:
         integration = POSIntegration.objects.get(
             id=integration_id,
@@ -86,7 +86,7 @@ def trigger_sync(request, integration_id):
         
     except POSIntegration.DoesNotExist:
         return Response({
-            'error': 'POS integration not found'
+            'error': 'Integration not found'
         }, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({

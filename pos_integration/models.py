@@ -6,12 +6,15 @@ User = get_user_model()
 
 
 class POSSystem(models.Model):
-    """POS System configurations"""
+    """POS & Channel System configurations (extended to channels/couriers)"""
     
     POS_TYPES = [
         ('SQUARE', 'Square'),
         ('SHOPIFY', 'Shopify'),
         ('CUSTOM', 'Custom API'),
+        ('AMAZON', 'Amazon SP-API'),
+        ('DARAZ', 'Daraz Open Platform'),
+        ('COURIER', 'Courier API'),
     ]
     
     name = models.CharField(max_length=100)
@@ -26,7 +29,7 @@ class POSSystem(models.Model):
 
 
 class POSIntegration(models.Model):
-    """POS Integration for supermarkets"""
+    """Integration for supermarkets (POS, Channels, Couriers)"""
     
     STATUS_CHOICES = [
         ('ACTIVE', 'Active'),
@@ -35,17 +38,32 @@ class POSIntegration(models.Model):
         ('SYNCING', 'Syncing'),
     ]
     
+    INTEGRATION_KIND = [
+        ('POS', 'POS'),
+        ('CHANNEL', 'Sales Channel'),
+        ('COURIER', 'Courier'),
+    ]
+    
     supermarket = models.OneToOneField('supermarkets.Supermarket', on_delete=models.CASCADE, related_name='pos_integration')
     pos_system = models.ForeignKey(POSSystem, on_delete=models.CASCADE)
+    kind = models.CharField(max_length=20, choices=INTEGRATION_KIND, default='POS')
     
     # API Credentials
     api_key = models.CharField(max_length=255)
     api_secret = models.CharField(max_length=255, blank=True, null=True)
     store_id = models.CharField(max_length=100, blank=True, null=True)
     
+    # Additional auth/params
+    oauth_client_id = models.CharField(max_length=255, blank=True, null=True)
+    oauth_client_secret = models.CharField(max_length=255, blank=True, null=True)
+    refresh_token = models.CharField(max_length=255, blank=True, null=True)
+    region = models.CharField(max_length=50, blank=True, null=True)
+    sandbox = models.BooleanField(default=False)
+    
     # Configuration
     auto_sync_enabled = models.BooleanField(default=True)
     sync_interval = models.IntegerField(default=60, help_text="Minutes between syncs")
+    sync_orders = models.BooleanField(default=True)
     sync_products = models.BooleanField(default=True)
     sync_inventory = models.BooleanField(default=True)
     sync_prices = models.BooleanField(default=True)
@@ -59,7 +77,7 @@ class POSIntegration(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.supermarket.name} - {self.pos_system.name}"
+        return f"{self.supermarket.name} - {self.pos_system.name} ({self.kind})"
 
 
 class POSSyncLog(models.Model):
