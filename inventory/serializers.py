@@ -87,7 +87,6 @@ class ProductListSerializer(serializers.ModelSerializer):
             'expiry_date', 'location', 'is_low_stock', 'is_expired',
             'is_expiring_soon', 'days_until_expiry', 'total_value',
             'image', 'is_active', 'added_date',
-            # Added supermarket information to support filtering on frontend
             'supermarket', 'supermarket_name', 'supermarket_parent', 'supermarket_parent_name'
         ]
 
@@ -153,15 +152,12 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
     
     def validate_barcode(self, value):
         """Validate barcode uniqueness"""
-        # If value is omitted or blank, let create() generate it
         if not value:
             return value
         if self.instance:
-            # Update case - exclude current instance
             if Product.objects.exclude(id=self.instance.id).filter(barcode=value).exists():
                 raise serializers.ValidationError("Product with this barcode already exists.")
         else:
-            # Create case
             if Product.objects.filter(barcode=value).exists():
                 raise serializers.ValidationError("Product with this barcode already exists.")
         return value
@@ -178,20 +174,14 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         """Create product with automatic barcode generation"""
-        # Generate barcode if not provided
         if not validated_data.get('barcode'):
             validated_data['barcode'] = BarcodeService.generate_barcode_number()
         
-        # Set created_by if available in context
         if 'request' in self.context:
             validated_data['created_by'] = self.context['request'].user
         
-        # Create product
         product = super().create(validated_data)
-        
-        # Create barcode record
         BarcodeService.create_product_barcode(product)
-        
         return product
 
 
@@ -257,7 +247,6 @@ class BulkProductUpdateSerializer(serializers.Serializer):
     updates = serializers.DictField()
     
     def validate_updates(self, value):
-        """Validate update fields"""
         allowed_fields = [
             'category', 'supplier', 'price', 'selling_price', 'cost_price',
             'min_stock_level', 'max_stock_level', 'location', 'is_active'
