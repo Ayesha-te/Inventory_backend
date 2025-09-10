@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Purchase Order {{ po.po_number|default:po.id }}</title>
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; }
+      .card { border: 1px solid #eee; border-radius: 8px; padding: 16px; }
+      .muted { color: #666; font-size: 12px; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid #eee; padding: 8px; font-size: 14px; }
+      th { background: #f9f9f9; text-align: left; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Purchase Order {{ po.po_number|default:po.id }}</h2>
+      <p>
+        <strong>Supplier:</strong> {{ supplier.name }}<br/>
+        <strong>Store:</strong> {{ supermarket.name }}<br/>
+        <strong>Status:</strong> {{ po.status }}<br/>
+        <span class="muted">Created: {{ po.created_at }}</span>
+      </p>
+
+      <h3>Line Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for it in items %}
+          <tr>
+            <td>{{ it.product.name }}</td>
+            <td>{{ it.quantity }}</td>
+            <td>{{ it.unit_price }}</td>
+            <td>{{ it.quantity|floatformat:2|add:"0"|floatformat }}{% comment %}Subtotal is typically quantity*unit_price; render simply if needed{% endcomment %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <p style="margin-top: 12px;">
+        <strong>Total:</strong> {{ total }}
+      </p>
+
+      <p class="muted">This is an automated message from IMS.</p>
+    </div>
+  </body>
+</html>

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.db.models import Min
 from django.db import DatabaseError, IntegrityError
+from django.http import HttpResponse
 from .models import SupplierProduct, PurchaseOrder
 from .serializers import SupplierProductSerializer, PurchaseOrderSerializer
 
@@ -46,6 +47,43 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
         po.status = 'RECEIVED'
         po.save(update_fields=['status'])
         return Response({'detail': 'Marked as received'})
+
+    @action(detail=True, methods=['post'])
+    def email(self, request, pk=None):
+        """Send PO to supplier via email"""
+        po = self.get_object()
+        supplier_email = getattr(po.supplier, 'email', None)
+        if not supplier_email:
+            return Response({'detail': 'Supplier email not set'}, status=status.HTTP_400_BAD_REQUEST)
+
+        from django.core.mail import EmailMultiAlternatives
+        from django.template.loader import render_to_string
+        from django.conf import settings
+
+        subject = f"Purchase Order {po.po_number or po.id}"
+        context = {
+            'po': po,
+            'items': po.items.all(),
+            'supplier': po.supplier,
+            'supermarket': po.supermarket,
+            'total': po.total_amount,
+        }
+        try:
+            html = render_to_string('purchasing/po_email.html', context)
+        except Exception:
+            html = f"Purchase Order {po.po_number or po.id} for {po.supplier.name}. Total: {po.total_amount}"
+
+        try:
+            msg = EmailMultiAlternatives(subject, html, settings.DEFAULT_FROM_EMAIL, [supplier_email])
+            msg.attach_alternative(html, "text/html")
+            msg.send()
+            # Mark as SENT if was DRAFT
+            if po.status == 'DRAFT':
+                po.status = 'SENT'
+                po.save(update_fields=['status'])
+            return Response({'detail': 'Email sent'})
+        except Exception as e:
+            return Response({'detail': f'Failed to send email: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['get'])
     def stats(self, request):

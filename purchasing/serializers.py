@@ -152,6 +152,22 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         if sm_obj:
             validated_data['supermarket'] = sm_obj
 
+        # Auto-generate po_number if not provided: PO-YYYY-<n> (no zero padding)
+        po_number = (validated_data.get('po_number') or '').strip()
+        if not po_number:
+            year = timezone.now().year
+            prefix = f"PO-{year}-"
+            existing = PurchaseOrder.objects.filter(po_number__startswith=prefix).values_list('po_number', flat=True)
+            max_seq = 0
+            for s in existing:
+                try:
+                    seq = int(str(s).split('-')[-1])
+                    if seq > max_seq:
+                        max_seq = seq
+                except Exception:
+                    continue
+            validated_data['po_number'] = f"PO-{year}-{max_seq + 1}"
+
         request = self.context.get('request')
         if request and getattr(request, 'user', None) and request.user.is_authenticated:
             validated_data['created_by'] = request.user
