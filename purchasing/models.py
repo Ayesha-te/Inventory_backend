@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 
-User = get_user_model()
 
 
 class SupplierProduct(models.Model):
@@ -44,7 +43,7 @@ class PurchaseOrder(models.Model):
     notes = models.TextField(blank=True, null=True)
 
     # Audit
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

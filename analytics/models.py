@@ -1,8 +1,7 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from decimal import Decimal
 
-User = get_user_model()
 
 
 class DashboardMetrics(models.Model):
@@ -73,7 +72,7 @@ class ReportTemplate(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     report_type = models.CharField(max_length=20, choices=REPORT_TYPES)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='report_templates')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='report_templates')
     supermarket = models.ForeignKey('supermarkets.Supermarket', on_delete=models.CASCADE, related_name='report_templates')
     
     # Report configuration
@@ -112,7 +111,7 @@ class GeneratedReport(models.Model):
     ]
     
     template = models.ForeignKey(ReportTemplate, on_delete=models.CASCADE, related_name='generated_reports')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='generated_reports')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='generated_reports')
     
     # Report details
     title = models.CharField(max_length=255)
@@ -158,7 +157,7 @@ class UserActivity(models.Model):
         ('SETTINGS_UPDATE', 'Settings Updated'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='activities')
     supermarket = models.ForeignKey('supermarkets.Supermarket', on_delete=models.CASCADE, related_name='activities', blank=True, null=True)
     
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES)

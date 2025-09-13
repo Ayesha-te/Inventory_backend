@@ -1,9 +1,8 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 import uuid
 import json
 
-User = get_user_model()
 
 
 class UploadSession(models.Model):
@@ -24,7 +23,7 @@ class UploadSession(models.Model):
     ]
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='upload_sessions')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='upload_sessions')
     supermarket = models.ForeignKey('supermarkets.Supermarket', on_delete=models.CASCADE, related_name='upload_sessions')
     
     # File information
@@ -180,7 +179,7 @@ class ProcessingTemplate(models.Model):
     
     name = models.CharField(max_length=255)
     template_type = models.CharField(max_length=10, choices=TEMPLATE_TYPES)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='processing_templates')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='processing_templates')
     
     # Column mappings
     column_mappings = models.JSONField(default=dict)  # Maps file columns to product fields
@@ -226,7 +225,7 @@ class BatchOperation(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     upload_session = models.ForeignKey(UploadSession, on_delete=models.CASCADE, related_name='batch_operations')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     operation_type = models.CharField(max_length=15, choices=OPERATION_TYPES)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='PENDING')

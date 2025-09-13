@@ -1,8 +1,7 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 import uuid
 
-User = get_user_model()
 
 
 class Notification(models.Model):
@@ -28,7 +27,7 @@ class Notification(models.Model):
     ]
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
     supermarket = models.ForeignKey('supermarkets.Supermarket', on_delete=models.CASCADE, related_name='notifications', blank=True, null=True)
     
     # Notification content
@@ -139,7 +138,7 @@ class EmailNotification(models.Model):
 class NotificationPreference(models.Model):
     """User notification preferences"""
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='notification_preferences')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notification_preferences')
     
     # Global settings
     notifications_enabled = models.BooleanField(default=True)
@@ -183,7 +182,7 @@ class NotificationPreference(models.Model):
 class NotificationDigest(models.Model):
     """Notification digests for batched delivery"""
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notification_digests')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notification_digests')
     
     # Digest details
     digest_type = models.CharField(
@@ -226,7 +225,7 @@ class PushNotificationDevice(models.Model):
         ('IOS', 'iOS'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='push_devices')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='push_devices')
     
     # Device info
     device_type = models.CharField(max_length=20, choices=DEVICE_TYPES)
@@ -274,7 +273,7 @@ class Reminder(models.Model):
     ]
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reminders')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reminders')
     supermarket = models.ForeignKey('supermarkets.Supermarket', on_delete=models.CASCADE, related_name='reminders', blank=True, null=True)
     
     # Reminder details

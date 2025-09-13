@@ -1,11 +1,10 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 import uuid
 
-User = get_user_model()
 
 
 class Category(models.Model):
@@ -15,7 +14,7 @@ class Category(models.Model):
     description = models.TextField(blank=True, null=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='subcategories')
     image = models.ImageField(upload_to='categories/', blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='categories')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='categories', null=True, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -47,7 +46,7 @@ class Supplier(models.Model):
     tax_id = models.CharField(max_length=50, blank=True, null=True)
     payment_terms = models.CharField(max_length=100, blank=True, null=True)
     credit_days = models.IntegerField(default=0)  # New field for supplier credit limit in days
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='suppliers')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='suppliers', null=True, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -115,7 +114,7 @@ class Product(models.Model):
     
     # Relationships
     supermarket = models.ForeignKey('supermarkets.Supermarket', on_delete=models.CASCADE, related_name='products')
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     
     # POS Integration
     synced_with_pos = models.BooleanField(default=False)
@@ -204,7 +203,7 @@ class StockMovement(models.Model):
     total_cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     reference = models.CharField(max_length=100, blank=True, null=True)  # Invoice, PO number, etc.
     notes = models.TextField(blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -240,7 +239,7 @@ class ProductAlert(models.Model):
     is_resolved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     resolved_at = models.DateTimeField(blank=True, null=True)
-    resolved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    resolved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     
     class Meta:
         ordering = ['-created_at']
@@ -274,7 +273,7 @@ class ProductReview(models.Model):
     """Product reviews and ratings"""
     
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     title = models.CharField(max_length=255, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
@@ -321,7 +320,7 @@ class Clearance(models.Model):
     generated_sku = models.CharField(max_length=80, unique=True, blank=True, null=True)
     generated_barcode = models.CharField(max_length=50, unique=True, blank=True, null=True)
 
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

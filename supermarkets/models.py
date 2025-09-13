@@ -1,9 +1,8 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.core.validators import RegexValidator
 import uuid
 
-User = get_user_model()
 
 
 class Supermarket(models.Model):
@@ -40,7 +39,7 @@ class Supermarket(models.Model):
     logo = models.ImageField(upload_to='supermarket_logos/', blank=True, null=True)
     
     # Relationships
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_supermarkets')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='owned_supermarkets')
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='sub_stores')
     is_sub_store = models.BooleanField(default=False)
     
@@ -103,7 +102,7 @@ class SupermarketStaff(models.Model):
     ]
     
     supermarket = models.ForeignKey(Supermarket, on_delete=models.CASCADE, related_name='staff')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='staff_positions')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='staff_positions')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     hire_date = models.DateField()
     salary = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -174,7 +173,7 @@ class SupermarketInvitation(models.Model):
     supermarket = models.ForeignKey(Supermarket, on_delete=models.CASCADE, related_name='invitations')
     email = models.EmailField()
     role = models.CharField(max_length=20, choices=SupermarketStaff.ROLE_CHOICES)
-    invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
+    invited_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_invitations')
     token = models.UUIDField(default=uuid.uuid4, unique=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     
