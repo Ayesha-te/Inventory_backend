@@ -104,7 +104,6 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
             'fields': [
                 'PO Number (unique ID to track it)',
                 'Supplier name (who you’re buying from)',
-                'Buyer name (your business)',
                 'Products/Services list (with quantities and unit prices)',
                 'Total amount',
                 'Expected delivery date',

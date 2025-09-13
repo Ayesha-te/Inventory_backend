@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Category, Supplier, Product, ProductImage, StockMovement, 
-    ProductAlert, Barcode, ProductReview
+    ProductAlert, Barcode, ProductReview, Clearance, ClearanceBundleItem
 )
 from .services import BarcodeService
 
@@ -271,3 +271,46 @@ class ProductStatsSerializer(serializers.Serializer):
     categories_count = serializers.IntegerField()
     suppliers_count = serializers.IntegerField()
     average_profit_margin = serializers.DecimalField(max_digits=5, decimal_places=2)
+
+
+class ClearanceBundleItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+
+    class Meta:
+        model = ClearanceBundleItem
+        fields = ['id', 'product', 'product_name', 'quantity']
+
+
+class ClearanceSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    is_active = serializers.ReadOnlyField()
+    bundle_items = ClearanceBundleItemSerializer(many=True, required=False)
+
+    class Meta:
+        model = Clearance
+        fields = [
+            'id', 'product', 'product_name', 'type', 'value',
+            'bogo_buy_x', 'bogo_get_y', 'expires_at',
+            'generated_sku', 'generated_barcode', 'is_active',
+            'bundle_items', 'created_at'
+        ]
+        read_only_fields = ['generated_sku', 'generated_barcode', 'is_active', 'created_at']
+
+    def create(self, validated_data):
+        bundle_items_data = validated_data.pop('bundle_items', [])
+        user = self.context['request'].user if 'request' in self.context else None
+        obj = Clearance.objects.create(created_by=user, **validated_data)
+        for item in bundle_items_data or []:
+            ClearanceBundleItem.objects.create(clearance=obj, **item)
+        return obj
+
+    def update(self, instance, validated_data):
+        bundle_items_data = validated_data.pop('bundle_items', None)
+        for attr, val in validated_data.items():
+            setattr(instance, attr, val)
+        instance.save()
+        if bundle_items_data is not None:
+            instance.bundle_items.all().delete()
+            for item in bundle_items_data:
+                ClearanceBundleItem.objects.create(clearance=instance, **item)
+        return instance

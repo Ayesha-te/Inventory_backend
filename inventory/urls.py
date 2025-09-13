@@ -35,4 +35,11 @@ urlpatterns = [
     path('products/<uuid:product_id>/generate-barcode/', views.generate_barcode_for_product, name='generate_barcode'),
     path('products/bulk-tickets/', views.BulkTicketsView.as_view(), name='bulk_tickets'),
     path('products/bulk-barcodes/', views.BulkBarcodesView.as_view(), name='bulk_barcodes'),
+
+    # Clearance
+    path('clearance/', views.ClearanceListCreateView.as_view(), name='clearance_list_create'),
+    path('clearance/<uuid:pk>/', views.ClearanceDetailView.as_view(), name='clearance_detail'),
+    path('clearance/active/', views.ClearanceActiveListView.as_view(), name='clearance_active'),
+    path('clearance/<uuid:clearance_id>/barcode/', views.ClearanceBarcodeView.as_view(), name='clearance_barcode'),
+    path('clearance/<uuid:clearance_id>/ticket/', views.ClearanceTicketView.as_view(), name='clearance_ticket'),
 ]

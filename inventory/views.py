@@ -11,13 +11,14 @@ from decimal import Decimal
 
 from .models import (
     Category, Supplier, Product, ProductImage, StockMovement,
-    ProductAlert, Barcode, ProductReview
+    ProductAlert, Barcode, ProductReview, Clearance
 )
 from .serializers import (
     CategorySerializer, SupplierSerializer, ProductListSerializer,
     ProductDetailSerializer, ProductCreateUpdateSerializer, StockMovementSerializer,
     ProductAlertSerializer, BarcodeSerializer, ProductReviewSerializer,
-    BulkProductUpdateSerializer, ProductStatsSerializer, ProductImageSerializer
+    BulkProductUpdateSerializer, ProductStatsSerializer, ProductImageSerializer,
+    ClearanceSerializer
 )
 from .filters import ProductFilter
 from .services import BarcodeService, TicketService, ProductService
@@ -26,7 +27,6 @@ from .services import BarcodeService, TicketService, ProductService
 class CategoryListCreateView(generics.ListCreateAPIView):
     """List and create categories"""
     
-    queryset = Category.objects.filter(is_active=True)
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -34,20 +34,33 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
     pagination_class = None  # Disable pagination for categories - return plain array
+    
+    def get_queryset(self):
+        """Filter categories by current user"""
+        return Category.objects.filter(
+            created_by=self.request.user,
+            is_active=True
+        )
+    
+    def perform_create(self, serializer):
+        """Set the created_by field to current user"""
+        serializer.save(created_by=self.request.user)
 
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, update, and delete categories"""
     
-    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """Filter categories by current user"""
+        return Category.objects.filter(created_by=self.request.user)
 
 
 class SupplierListCreateView(generics.ListCreateAPIView):
     """List and create suppliers"""
     
-    queryset = Supplier.objects.filter(is_active=True)
     serializer_class = SupplierSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -55,14 +68,28 @@ class SupplierListCreateView(generics.ListCreateAPIView):
     ordering_fields = ['name', 'created_at']
     ordering = ['name']
     pagination_class = None  # Disable pagination for suppliers - return plain array
+    
+    def get_queryset(self):
+        """Filter suppliers by current user"""
+        return Supplier.objects.filter(
+            created_by=self.request.user,
+            is_active=True
+        )
+    
+    def perform_create(self, serializer):
+        """Set the created_by field to current user"""
+        serializer.save(created_by=self.request.user)
 
 
 class SupplierDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, update, and delete suppliers"""
     
-    queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """Filter suppliers by current user"""
+        return Supplier.objects.filter(created_by=self.request.user)
 
 
 class ProductListCreateView(generics.ListCreateAPIView):
@@ -298,10 +325,12 @@ class ProductStatsView(APIView):
         out_of_stock_count = products.filter(quantity=0).count()
         
         categories_count = Category.objects.filter(
+            created_by=user,
             product__in=products
         ).distinct().count()
         
         suppliers_count = Supplier.objects.filter(
+            created_by=user,
             product__in=products
         ).distinct().count()
         
@@ -342,6 +371,93 @@ class StockMovementListView(generics.ListAPIView):
     
     def get_queryset(self):
         user = self.request.user
+
+
+class ClearanceListCreateView(generics.ListCreateAPIView):
+    """List and create clearance deals (scoped to current user's supermarkets)."""
+
+    serializer_class = ClearanceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.OrderingFilter]
+    ordering = ['-created_at']
+    pagination_class = None  # match frontend expectations (plain array)
+
+    def get_queryset(self):
+        user = self.request.user
+        return Clearance.objects.filter(product__supermarket__owner=user).select_related('product')
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+class ClearanceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ClearanceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Clearance.objects.filter(product__supermarket__owner=user)
+
+
+class ClearanceActiveListView(generics.ListAPIView):
+    serializer_class = ClearanceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = Clearance.objects.filter(product__supermarket__owner=user)
+        return [c for c in qs if c.is_active]
+
+
+class ClearanceBarcodeView(APIView):
+    """Return a barcode image for the clearance-generated barcode."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, clearance_id):
+        try:
+            clearance = Clearance.objects.get(id=clearance_id, product__supermarket__owner=request.user)
+        except Clearance.DoesNotExist:
+            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not clearance.generated_barcode:
+            # Force generation if missing
+            clearance.save()
+        try:
+            img_bytes = BarcodeService.generate_barcode_image(clearance.generated_barcode)
+            return HttpResponse(img_bytes, content_type='image/png')
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+
+
+class ClearanceTicketView(APIView):
+    """Return a PDF ticket that includes clearance info and barcode."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, clearance_id):
+        try:
+            clearance = Clearance.objects.get(id=clearance_id, product__supermarket__owner=request.user)
+        except Clearance.DoesNotExist:
+            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Create a lightweight Product-like wrapper to reuse TicketService
+        # but override barcode/price/name where relevant
+        product = clearance.product
+        original_barcode = getattr(product, 'barcode', '')
+
+        # Render ticket with clearance details at top using ReportLab similar to TicketService
+        # For simplicity, reuse TicketService to generate base ticket, then just change barcode
+        try:
+            # Temporarily swap barcode for generation
+            setattr(product, 'barcode', clearance.generated_barcode or original_barcode)
+            pdf_bytes = TicketService.generate_product_ticket(product, include_qr=False)
+            # Restore
+            setattr(product, 'barcode', original_barcode)
+            return HttpResponse(pdf_bytes, content_type='application/pdf')
+        except Exception as e:
+            # Restore and return error
+            setattr(product, 'barcode', original_barcode)
+            return Response({'error': str(e)}, status=500)
         return StockMovement.objects.filter(
             product__supermarket__owner=user
         ).select_related('product', 'created_by')

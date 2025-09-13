@@ -9,12 +9,13 @@ User = get_user_model()
 
 
 class Category(models.Model):
-    """Product categories"""
+    """User-specific product categories"""
     
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='subcategories')
     image = models.ImageField(upload_to='categories/', blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='categories')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -22,6 +23,7 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = 'Categories'
         ordering = ['name']
+        unique_together = ['name', 'created_by']  # User-specific uniqueness
     
     def __str__(self):
         return self.name
@@ -34,7 +36,7 @@ class Category(models.Model):
 
 
 class Supplier(models.Model):
-    """Product suppliers"""
+    """User-specific product suppliers"""
     
     name = models.CharField(max_length=255)
     contact_person = models.CharField(max_length=255, blank=True, null=True)
@@ -45,12 +47,14 @@ class Supplier(models.Model):
     tax_id = models.CharField(max_length=50, blank=True, null=True)
     payment_terms = models.CharField(max_length=100, blank=True, null=True)
     credit_days = models.IntegerField(default=0)  # New field for supplier credit limit in days
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='suppliers')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['name']
+        unique_together = ['name', 'created_by']  # User-specific uniqueness
     
     def __str__(self):
         return self.name
@@ -284,3 +288,78 @@ class ProductReview(models.Model):
     
     def __str__(self):
         return f"{self.product.name} - {self.rating}/5 by {self.user.email}"
+
+
+class Clearance(models.Model):
+    """Clearance deals for products without duplicating products.
+    - Generates its own SKU and barcode for tickets
+    - Types: discount (value=%), flat (value=price), bogo (buy_x/get_y), bundle (via related items)
+    """
+
+    TYPE_CHOICES = [
+        ('discount', 'Discount %'),
+        ('flat', 'Flat Price'),
+        ('bogo', 'Buy X Get Y'),
+        ('bundle', 'Bundle'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='clearance_deals')
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+
+    # For discount% or flat price
+    value = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    # BOGO configuration
+    bogo_buy_x = models.PositiveIntegerField(default=1)
+    bogo_get_y = models.PositiveIntegerField(default=1)
+
+    # Expiry
+    expires_at = models.DateTimeField()
+
+    # Generated identifiers for clearance-specific ticket/barcode
+    generated_sku = models.CharField(max_length=80, unique=True, blank=True, null=True)
+    generated_barcode = models.CharField(max_length=50, unique=True, blank=True, null=True)
+
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Clearance({self.type}) for {self.product.name}"
+
+    @property
+    def is_active(self) -> bool:
+        return bool(self.expires_at and self.expires_at > timezone.now() and self.product.is_active)
+
+    def save(self, *args, **kwargs):
+        # Ensure generated SKU and barcode
+        created = self._state.adding
+        super().save(*args, **kwargs)
+        updated = False
+        if not self.generated_sku:
+            base = self.product.sku or self.product.barcode or str(self.product.id)
+            self.generated_sku = f"{base}-CL-{str(self.id)[:8]}"
+            updated = True
+        if not self.generated_barcode:
+            from .services import BarcodeService
+            self.generated_barcode = BarcodeService.generate_barcode_number()
+            updated = True
+        if updated:
+            super().save(update_fields=['generated_sku', 'generated_barcode'])
+
+
+class ClearanceBundleItem(models.Model):
+    """Bundle items for a clearance deal (supports N products)."""
+
+    clearance = models.ForeignKey(Clearance, on_delete=models.CASCADE, related_name='bundle_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='bundle_in_clearances')
+    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"BundleItem({self.quantity} x {self.product.name}) for {self.clearance_id}"

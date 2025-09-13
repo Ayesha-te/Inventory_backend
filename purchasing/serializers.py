@@ -55,7 +55,7 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         model = PurchaseOrder
         fields = [
             'id', 'po_number', 'supplier', 'supplier_name', 'supermarket', 'supermarket_name', 'supermarket_text',
-            'status', 'expected_delivery_date', 'payment_terms', 'buyer_name', 'notes',
+            'status', 'expected_delivery_date', 'payment_terms', 'notes',
             'created_by', 'created_at', 'updated_at', 'items', 'total_amount'
         ]
         read_only_fields = ['created_at', 'updated_at', 'created_by', 'status']
@@ -168,6 +168,9 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
                     continue
             validated_data['po_number'] = f"PO-{year}-{max_seq + 1}"
 
+        # Remove unsupported legacy field if present
+        validated_data.pop('buyer_name', None)
+
         request = self.context.get('request')
         if request and getattr(request, 'user', None) and request.user.is_authenticated:
             validated_data['created_by'] = request.user
@@ -189,6 +192,9 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         sm_obj = self._resolve_supermarket(validated_data)
         if sm_obj:
             validated_data['supermarket'] = sm_obj
+
+        # Remove unsupported keys if present in payload (backward compatibility)
+        validated_data.pop('buyer_name', None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

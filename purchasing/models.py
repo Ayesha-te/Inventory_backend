@@ -41,7 +41,6 @@ class PurchaseOrder(models.Model):
     po_number = models.CharField(max_length=50, unique=True, null=True, blank=True)
     expected_delivery_date = models.DateField(null=True, blank=True)
     payment_terms = models.CharField(max_length=100, null=True, blank=True)
-    buyer_name = models.CharField(max_length=100, null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
 
     # Audit
