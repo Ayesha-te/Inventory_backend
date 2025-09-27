@@ -32,7 +32,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'django_q',
+    # 'django_q',  # Temporarily disabled - compatibility issue
     'django_extensions',
     'django_filters',
 ]
@@ -44,7 +44,7 @@ LOCAL_APPS = [
     # 'pos_integration',  # Temporarily disabled - missing dependencies
     # 'file_processing',  # Temporarily disabled - missing dependencies  
     # 'analytics',        # Temporarily disabled - missing views.py
-    'notifications',
+    # 'notifications',    # Temporarily disabled - django_q compatibility issue
     'purchasing',
     'orders',
 ]

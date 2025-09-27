@@ -27,8 +27,9 @@ urlpatterns = [
     # 'pos_integration' URLs are added conditionally below
     # path('api/files/', include('file_processing.urls')),    # Temporarily disabled
     # path('api/analytics/', include('analytics.urls')),      # Temporarily disabled
-    path('api/notifications/', include('notifications.urls')),
+    # path('api/notifications/', include('notifications.urls')),  # Temporarily disabled - django_q issue
     path('api/orders/', include('orders.urls')),
+    path('api/orders/enhanced/', include('orders.enhanced_urls')),  # Multi-channel order management
 ]
 
 # Purchasing URLs

@@ -6,10 +6,13 @@ import uuid
 
 
 class Warehouse(models.Model):
-    """Warehouse linked to a Supermarket (store). Used for order fulfillment."""
+    """Warehouse/fulfillment centers linked to a Supermarket (store). Used for order fulfillment."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     supermarket = models.ForeignKey('supermarkets.Supermarket', on_delete=models.CASCADE, related_name='warehouses')
     name = models.CharField(max_length=255)
+    code = models.CharField(max_length=20, default='MAIN')
+    
+    # Address fields
     address_line1 = models.CharField(max_length=255)
     address_line2 = models.CharField(max_length=255, blank=True, null=True)
     city = models.CharField(max_length=100)
@@ -17,19 +20,46 @@ class Warehouse(models.Model):
     country = models.CharField(max_length=100, default='UK')
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    
+    # Contact information
+    contact_person = models.CharField(max_length=100, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    
+    # Settings
     is_active = models.BooleanField(default=True)
+    is_default = models.BooleanField(default=False)
+    priority = models.PositiveIntegerField(default=1)
+    
+    # Capacity and limits
+    max_capacity = models.PositiveIntegerField(null=True, blank=True)
+    current_utilization = models.PositiveIntegerField(default=0)
+    
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
+        unique_together = ('supermarket', 'code')
         indexes = [
             models.Index(fields=['supermarket']),
             models.Index(fields=['city']),
             models.Index(fields=['postcode']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['is_default']),
         ]
 
     def __str__(self):
-        return f"{self.name} ({self.city})"
+        return f"{self.name} ({self.code}) - {self.city}"
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one default warehouse per supermarket
+        if self.is_default:
+            Warehouse.objects.filter(
+                supermarket=self.supermarket,
+                is_default=True
+            ).exclude(id=self.id).update(is_default=False)
+        super().save(*args, **kwargs)
 
 
 class Order(models.Model):
