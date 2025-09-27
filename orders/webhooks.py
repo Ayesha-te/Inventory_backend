@@ -15,7 +15,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.conf import settings
 
-from .models import Channel
+from .enhanced_models import Channel
 from .services import MultiChannelOrderService, StockService
 from .enhanced_models import ChannelSyncLog
 
